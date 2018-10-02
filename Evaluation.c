@@ -11,6 +11,9 @@
 #define VRAI (1==1)
 #define FAUX (1==0)
 
+#define WRITE 1
+#define READ 0
+
 int
 verifier(int cond, char *s)
 {
@@ -20,6 +23,43 @@ verifier(int cond, char *s)
         return 0;
     }
     return 1;
+}
+
+int my_pipe(Expression *e, int *fds, int bg) {
+    verifier(e != NULL, "Null expression");
+    //
+    // int tube[2];
+    // int status;
+    //
+    // pipe(tube);
+    // pid_t pid;
+    //
+    // pid = fork();
+    // if (pid == 0) {
+    //     close(tube[1]);
+    //     dup2(tube[READ], fds[0]); // gauche écris
+    //     close(tube[0]);
+    //     execvp(e->arguments[0], e->arguments);
+    //     exit(0);
+    // }
+
+
+    // if (pid == 0) { // fils
+    //     close(tube[1]);
+    //     dup2(tube[READ], fds[0]); // gauche écris
+    //     close(tube[0]);
+    //     execvp(droite->arguments[0], droite->arguments);
+    // } else { // pere
+    //     close(tube[0]);
+    //     dup2(tube[WRITE], fds[1]); // droite lis
+    //     close(tube[1]);
+    //     execvp(gauche->arguments[0], gauche->arguments);
+    //     // exit(0);
+    // }
+    //
+    // waitpid(pid, &status, WNOHANG);
+
+    return 0;
 }
 
 int rediriger(expr_t mode, char *fichier, int *fds)
@@ -79,6 +119,8 @@ int executer_simple(Expression *e, int *fds, int bg)
         return -1;
     }
 
+    printf("e->arguments = %s\n", e->arguments[0]);
+
     pid_t pid = fork(); // notre processus
     if (pid == 0) {
         for (size_t i = 0; i < 3; i++) {
@@ -133,6 +175,7 @@ int evaluer(Expression *e, int *fds, int bg)
         return (!evaluer(e->gauche, fds, bg) && evaluer(e->droite, fds, bg));
 
         case PIPE :
+        return my_pipe(e, fds, bg); // ?????
         default :
         printf("not yet implemented \n");
         return 1;
