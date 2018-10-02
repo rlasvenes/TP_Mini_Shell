@@ -25,16 +25,38 @@ int rediriger(expr_t mode, char *fichier, int *fds)
   // prépare la redirection en ouvrant le fichier puis en affectant
   // le(s) fds[i] selon le mode - ne réalise pas les redirections
 
+  int fd;
+
+  // reminder:
+  // 0 = stdin = STDIN_FILENO
+  // 1 = stdout = STDOUT_FILENO
+  // 2 = stderr = STDERR_FILENO
 
   switch(mode){
     case REDIRECTION_I:
+        fd = open(fichier, O_RDONLY);
+        fds[STDIN_FILENO] = fd;
+        break;
     case REDIRECTION_O:
+        fd = open(fichier, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+        fds[STDOUT_FILENO] = fd;
+        break;
     case REDIRECTION_A:
+        fd = open(fichier, O_WRONLY | O_APPEND | O_CREAT, 0644);
+        fds[STDOUT_FILENO] = fd;
+        break;
     case REDIRECTION_EO:
+        fd = open(fichier, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+        fds[STDOUT_FILENO] = fds[STDERR_FILENO] = fd;
+        break;
     case REDIRECTION_E:
+        fd = open(fichier, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+        fds[STDERR_FILENO] = fd;
+        break;
     default : fprintf(stderr,"redirection non implémentée\n") ; return 1;
   }
-  return 0;
+
+  return fd;
 }
 
 int executer_simple(Expression *e, int *fds, int bg)
